@@ -1,0 +1,40 @@
+
+let timeline = wixAnimations.timeline()
+let timeline2 = wixAnimations.timeline()
+
+
+const myImage1 = $w("#gear1");
+    const myImage2 = $w("#gear2");
+    const myImage3 = $w("#gear3");
+    const myImage4 = $w("#gear4");
+
+    timeline.add(
+        [myImage1, myImage3], {
+            "rotate": 20000,
+            "duration": 10000,
+            "rotateDirection": "ccw",
+            "easing": "easeInCirc"
+        })
+    timeline2.add(
+            [myImage2, myImage4], {
+                "rotate": 10000,
+                "duration": 10000,
+                "rotateDirection": "cw",
+                "easing": "easeInCirc"
+            }
+        )
+        .onRepeat(() => {
+            $w("#messageText").text = $w("#messageText").text + " in the workspace";
+        })
+        .onComplete(() => {
+            $w("#messageText").text = $w("#messageText").text + " That Empower the Workforce!";
+        })
+
+    $w("#btnRunTest").onClick(() => {
+        timeline.play();
+
+        timeline2.play();
+
+        $w("#messageText").show("glide")
+    });
+});
