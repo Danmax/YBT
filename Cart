@@ -1,0 +1,47 @@
+import wixWindow from 'wix-window';
+
+$w.onReady(function () {
+    // when a message is received from the HTML Component
+    let received = wixWindow.lightbox.getContext();
+    
+    let customer = received.customer;
+    let cartData = received.cart;
+
+    const cartItems = cartData.lineItems.map((item) => {
+        return {
+            productId: item.productId,
+            productName: item.name,
+            unitPrice: 100*(item.totalPrice),
+            quantity: item.quantity
+        };
+    });
+    console.log('Cart Items')
+    console.log(cartItems)
+
+    let transaction =  {
+        customer,
+            id: cartData._id,
+            discounts: cartData.totals.discount,
+            shipping: cartData.totals.shipping,
+            salesTax: cartData.totals.tax,
+            cartTotal: 100*(cartData.totals.total),
+            lineItems: cartItems
+        }
+    
+   
+    
+    
+    $w("#html1").postMessage(transaction)
+
+    $w('#sendMessage').onClick((event) => {
+        console.log(transaction)
+        $w("#html1").postMessage(transaction)
+        $w("#html1").expand()
+        
+
+    })
+
+    $w("#html1").onMessage((event) => {
+        console.log(`Message received by page code: ${event.data}`);
+    });
+});
