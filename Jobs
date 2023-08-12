@@ -1,0 +1,16 @@
+{
+ "jobs": [
+     {
+         // Option 2: Ddefine execution interval by setting time, day of week, and day of month
+         "functionLocation": "/snAPI.jsw", // Relative to Backend folder, started by slash
+         "functionName": "getIncidents",
+         "description": "Get New Incidents", // Optional
+         "executionConfig": {
+             "time": "06:00" // "hh:mm" 24h format, UTC timezone (e.g. 13:00)
+             // Optional: Uncomment section below for more complex intervals
+             "dayOfWeek": "Monday", // Day of week
+             // "dateInMonth": 1 // Number between 1-31
+         }
+     }
+ ]
+}
