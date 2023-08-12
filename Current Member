@@ -1,0 +1,35 @@
+import { currentMember } from 'wix-members-frontend';
+
+$w.onReady(function () {
+
+populateMemberInfo()
+	
+async function populateMemberInfo() {
+    try {
+        $w('#loading').show();
+
+        const member = await currentMember.getMember();
+
+        console.log(member);
+
+        const id = member._id;
+        const fullName = `${member.contactDetails.firstName} ${member.contactDetails.lastName}`;
+
+        $w('#profileImage').src = member.profile.profilePhoto.url;
+        $w('#profileName').text = member.contactDetails.firstName;
+        $w('#txtName').text = fullName;
+        $w('#txtBiography').text = `With ${member.contactDetails.company}`;
+
+        $w('#profileBox').show();
+        $w('#loading').hide();
+
+        return member;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+
+
+})
