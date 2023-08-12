@@ -1,0 +1,184 @@
+// Velo API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+import { local, session, memory } from 'wix-storage';
+import { currentMember } from 'wix-members';
+import { getChannelData, queryChannel, getVideoList} from "backend/youtubeAPI"
+//import { postChannel } from "backend/snYouTubeAPI"
+import { generateQRcode, generateQRfile, uploadImage, getDownloadUrl } from 'backend/qrCode.jsw';
+console.log($w('#qrVector').src)
+
+let fileUrl, downloadUrl, fileName;
+$w.onReady(async function () {
+
+    // let resStates = await wixData.query("States").find();
+    // let resItems = resStates.items;
+    // states = resItems.map((item) => { return { "label": item.title, "value": item.title } });
+
+    async function createQR() {
+
+        $w('#loading2').show()
+        const qrValue = $w('#qrInput').value;
+        const qrName = $w('#qrName').value || qrValue
+        //const qr = await generateQRcode(qrValue);
+        const qr = await generateQRfile(qrValue);
+        
+        console.log(qrName)
+        //Upload QR to Media Manager
+        
+        const upload = await uploadImage(qr, qrName);
+        fileUrl = upload.fileUrl;
+        
+
+        //Adds Download Link to Button
+        downloadUrl = await getDownloadUrl(fileUrl);
+        $w('#downloadQR').link = downloadUrl;
+
+        //Show QR Code on Client Side
+        $w('#qrVector').src = qr;
+        $w('#loading2').hide()
+        $w('#qrVector').show()
+        $w('#downloadQR').show();
+        
+
+    }
+
+    if ($w('#qrVector').src != 'vector://v1/162470084018985920a0c4cfb0f50d5e_svgshape.v1.Square.svg/') {
+        console.log("its ok")
+    } else {
+        console.log("not Ok!")
+    }
+
+    // let memberID
+    // currentMember.getMember()
+    //     .then((member) => {
+    //         memberID = member._id;
+    //         const fullName = `${member.contactDetails.firstName} ${member.contactDetails.lastName}`;
+    //         return member;
+    //     })
+    //     .catch((error) => {
+    //         console.error(error);
+    //     });
+
+    asyncCall()
+    async function asyncCall() {
+        loading()
+        let channel = "dmnetworksolutions3801"
+        if ($w('#inpYTChannel').value) {
+            channel = $w('#inpYTChannel').value
+
+        }
+        try {
+            const channelName = await queryChannel(channel);
+            const result = await getChannelData(channelName.id.channelId)
+            const videos = await getVideoList(result.contentDetails.relatedPlaylists.uploads)
+            getRelatedVideosSet()
+            hideloading()
+
+            let video = videos[0].snippet.resourceId.videoId
+            let stats = result.statistics
+            $w('#txtSubs').text = `Subscribers : ${stats.subscriberCount}`
+            $w('#txtTotalViews').text = `Total Views : ${stats.viewCount}`
+            $w('#txtVideos').text = `Videos : ${stats.videoCount}`
+            $w('#txtAPITitle').text = `Custom URL : ${result.snippet.customUrl}`
+            $w('#txtChannelTittle').text = `${result.snippet.title}`
+            $w('#section1Image').background.src = result.snippet.thumbnails.high.url
+            $w('#btnSubscribe').label = `Subscribe`
+            $w('#btnSubscribe').link = `https://www.youtube.com/channel/${result.id}`
+            $w('#btnSubscribe').target = "_blank";
+            $w('#txtChannelId').text = `${result.id}`
+            $w('#videoPlayer1').src = `https://www.youtube.com/watch?v=${video}`
+            $w('#videoPlayer1').show()
+            $w('#boxYouTube').show()
+            if (result && video) {
+                const postObj = {
+                    "channel_id": result.id,
+                    "subscribers": stats.subscriberCount,
+                    "total_views": stats.viewCount,
+                    "total_videos": stats.videoCount,
+                    "custom_url": result.snippet.customUrl,
+                    "channel_name": result.snippet.title,
+                    "description": result.snippet.description,
+                    "list_id": result.contentDetails.relatedPlaylists.uploads,
+                    "search_term": channel,
+                    //"owner_id": memberID,
+                    "img": result.snippet.thumbnails.high.url,
+                    "hidden_Sub_Count": stats.hiddenSubscriberCount,
+                    "channel_url": `https://www.youtube.com/channel/${result.id}`,
+                    "latest_video": `https://www.youtube.com/watch?v=${video}`
+                }
+            }
+            // const posted = await postChannel(postObj)
+            // console.log(posted)
+            const videoListMap = videos.map((char) => char = { ...char, _id: char.snippet.position.toString() })
+            $w("#relatedVideos").data = videoListMap
+            console.log("video List Map")
+            console.log(videoListMap)
+
+        } catch (err) {
+            console.log(err)
+            return err
+
+        }
+
+    }
+    function getRelatedVideosSet() {
+        $w("#relatedVideos").onItemReady(($item, itemData, index) => {
+            $item("#videoList").background.src = itemData.snippet.thumbnails.standard.url
+            let video = itemData.snippet.resourceId.videoId
+            $w('#relatedVideos').show()
+
+            $item("#btnRelatedVideo").onClick((e, $item) => {
+                viewSelectedVideo(video)
+            })
+        })
+
+    }
+    $w('#btnSearchChannel').onClick((e) => {
+        asyncCall()
+    })
+    $w('#generateButton').onClick((e) => {
+        createQR()
+    })
+
+    $w("#qrInput").onKeyPress((event) => {
+        let key = event.key;
+        if (key === "Enter") {
+            createQR()
+        }
+    })
+
+    $w("#inpYTChannel").onKeyPress((event) => {
+        let key = event.key;
+        if (key === "Enter") {
+            asyncCall()
+        }
+    })
+
+    function loading() {
+        $w('#loading1').show()
+    }
+
+    function hideloading() {
+        $w('#loading1').hide()
+    }
+
+})
+
+function viewSelectedVideo(video) {
+    $w('#videoPlayer1').src = `https://www.youtube.com/watch?v=${video}`
+}
+
+// async function postChannelID() {
+
+//     let payload = {
+//         "ch_id": ch_id,
+//         "subscribers": subscribers,
+//         "total_views": total_views,
+//         "total_videos": total_videos,
+//         "custom_url": custom_url,
+//         "channel_name": channel_name,
+//         "img ": img,
+//         "url": url,
+//         "latest_video": latest_video
+//     }
+//     return payload
+// }
