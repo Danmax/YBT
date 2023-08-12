@@ -1,0 +1,71 @@
+import { getSecret } from 'wix-secrets-backend';
+import {fetch} from 'wix-fetch';
+
+
+// var raw = JSON.stringify({
+//   "name": "DM Network Solutions",
+//   "industry_type": "Tech",
+//   "website": "www.dmnetworksolutions.com"
+// });
+// let fieldsObj1 = {"name": "DM Network Solutions",
+//     "industry_type": "Tech",
+//     "website": "www.dmnetworksolutions.com"
+// }
+// // ...
+
+export async function getIncidents() {
+//     async function authAccount() {
+//     try {
+//         const snSecret= await getSecret('snIntegration');
+//         console.log(snSecret)
+//         const snAccount = JSON.parse(snSecret);
+//         console.log(snAccount)
+//         const basicAuth= (`basic ${snAccount.username}${snAccount.password}`);
+//         console.log(basicAuth)
+//         return basicAuth
+//     } catch (err) {
+//         return Promise.reject(err);
+//     }
+// }
+    const settings = {
+        method : 'GET',
+        headers: {
+            Accept: 'application/json',
+            Authorization: 'Basic d2l4dmVsb2ludGVncmF0aW9uOkZyb3dlYXIyMDIwJA=='
+            
+        }
+    };
+    try {
+        const fetchResponse = await fetch(`https://dev102977.service-now.com/api/now/table/incident?sysparm_fields=number%2Cstate%2Cshort_description&sysparm_limit=10`, settings)
+        const data = await fetchResponse.json();
+
+        return data;    
+    }
+    catch(err) {
+        return err
+
+    }
+}
+
+export async function postMachinery(name, industry_type, website) {
+    const fieldsObj = {name, industry_type, website}
+    console.log(fieldsObj)
+    const settings = {
+        method : 'POST',
+        body: JSON.stringify(fieldsObj),
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic d2l4dmVsbzpGcm93ZWFyMjAyMCE=`
+        }
+    };
+    try{
+        const fetchResponse = await fetch("https://empdmaldonado1.service-now.com/api/now/table/x_snc_machinery_manufacturer",settings)
+        const data = await fetchResponse.json();
+
+        console.log(data);
+        return data
+    }
+    catch(err) {
+        return err
+    }
+}
