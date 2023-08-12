@@ -1,0 +1,73 @@
+import QRCode from 'qrcode';
+import { mediaManager } from 'wix-media-backend';
+
+export function generateQRcode(toEncode) {
+    let opts = {
+        errorCorrectionLevel: 'H',
+        type: 'svg',
+        rendererOpts: {
+            quality: 0.3
+        }
+    };
+    
+    return QRCode.toString(toEncode, opts, (err, string) => {
+        if (err) throw err;
+        return string;
+    })
+}
+
+// export function generateQRfile(toEncode) {
+//     let opts = {
+//   errorCorrectionLevel: 'H',
+//   type: 'image/jpeg',
+//   quality: 0.3,
+//   margin: 1,
+//   color: {
+//     dark:"#010599FF",
+//     light:"#FFBF60FF"
+//   }
+// }
+
+
+// return QRCode.toString(toEncode, opts, (err, string) => {
+//         if (err) throw err;
+//         return string;
+//     })
+// }
+
+
+// QRCode.toFile('wix:image://v1/', 'Some text', {
+//   color: {
+//     dark: '#00F',  // Blue dots
+//     light: '#0000' // Transparent background
+//   }
+// }, function (err) {
+//   if (err) throw err
+//   console.log('done')
+// })
+
+
+export async function getDownloadUrl(fileUrl) {
+  const getDownloadUrl = await mediaManager.getDownloadUrl(fileUrl);  
+  return getDownloadUrl;
+}
+
+export function uploadImage(buffer,fileName) {
+  //Ensures proper filename is established (no invalid characters)
+  fileName = fileName.replace(/[/\\?%*:|."<>]/g, '-');
+  return mediaManager.upload(
+    "/QR",
+    buffer,
+    `${fileName}`,
+    {
+      "mediaOptions": {
+        "mimeType": "image/svg+xml",
+        "mediaType": "vector"
+      },
+      "metadataOptions": {
+        "isPrivate": false,
+        "isVisitorUpload": true
+      }
+    }
+  );
+}
