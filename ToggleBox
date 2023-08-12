@@ -1,0 +1,27 @@
+
+$w.onReady(function () {
+    $w('#ExperienceBtn').onClick(() => {
+        toggleBox($w('#ExperienceCollapsibleBox'), $w('#ExperiencePlusSign'), $w('#ExperienceMinusSign'));
+    });
+
+    $w('#CertificationsBtn').onClick(() => {
+        toggleBox($w('#CertificationsCollapsibleBox'), $w('#CertificationsPlusSign'), $w('#CertificationsMinusSign'));
+    });
+
+    $w('#PortfoliBtn').onClick(() => {
+        toggleBox($w('#PortfolioCollapsibleBox'), $w('#PortfolioPlusSign'), $w('#PortfolioMinusSign'));
+    });
+});
+
+function toggleBox(boxElement, plusSign, minusSign) {
+    const isCollapsed = boxElement.collapsed;
+    if (isCollapsed) {
+        plusSign.hide();
+        minusSign.show();
+        boxElement.expand();
+    } else {
+        minusSign.hide();
+        plusSign.show();
+        boxElement.collapse();
+    }
+}
