@@ -1,0 +1,146 @@
+import wixStoresBackend from 'wix-stores-backend';
+
+export function getCurrentCart() {
+    return wixStoresBackend.getCurrentCart();
+}
+
+export function createOrder() {
+    return wixStoresBackend.createOrder(fullOrder);
+}
+
+export function setOrder(customer, transaction){
+ let receivedData= {customer:{
+                firstName: customer.firstName,
+                middleName: customer.middleName,
+                lastName: customer.lastName,
+                phone: customer.phone,
+                email: customer.email,
+                address: {
+                    street1: customer.address.street1,
+                    street2: customer.address.street2,
+                    city: customer.address.city,
+                    state: customer.address.state,
+                    zipCode:customer.address.zipCode,
+                },
+ },
+ transaction: {
+            id: transaction.id,
+            discounts: transaction.discounts,
+            shipping: transaction.shipping,
+            salesTax: transaction.tax,
+            cartTotal: transaction.cartTotal,
+            lineItems: [
+                {
+                    productId: transaction.lineItems[0].productId,
+                    productName: transaction.lineItems[0].productName,
+                    unitPrice: transaction.lineItems[0].unitPrice,
+                    quantity: transaction.lineItems[0].quantity,
+                }
+            ],
+        },}
+ console.log(receivedData)
+return receivedData
+}
+
+            
+
+        
+
+
+const fullOrder = {
+    "buyerLanguage": "en",
+    "cartId": '',
+    "currency": "USD",
+    "weightUnit": "KG",
+    "billingInfo": {
+        "address": {
+            "formatted": '',
+            "city": '',
+            "country": "US",
+            "addressLine": '',
+            "postalCode": "",
+            "subdivision": ""
+        },
+        "lastName": "",
+        "firstName": "",
+        "email": "",
+        "phone": "",
+        "company": "",
+        "paymentMethod": "",
+        "paymentGatewayTransactionId": "",
+        "paymentProviderTransactionId": ""
+    },
+    "totals": {
+        "subtotal": 5,
+        "total": 5,
+        "shipping": 0
+    },
+    "channelInfo": {
+        "type": "WEB"
+    },
+    "paymentStatus": "PAID",
+    "shippingInfo": {
+        "deliverByDate": "",
+        "deliveryOption": "",
+        "shippingRegion": "",
+        "estimatedDeliveryTime": "",
+        "shipmentDetails": {
+            "address": {
+                "formatted": "",
+                "city": "",
+                "country": "",
+                "addressLine": "",
+                "postalCode": "",
+                "subdivision": ""
+            },
+            "lastName": "",
+            "firstName": "",
+            "email": "",
+            "phone": "",
+            "company": "",
+            "shipmentPriceData": {
+                "price": '',
+                "taxIncludedInPrice": false
+            }
+        }
+    },
+    "lineItems": [{
+        "customTextFields": [{
+            "title": "",
+            "value": ""
+        }],
+        "productId": "",
+        "lineItemType": "PHYSICAL",
+        "mediaItem": {
+            "altText": "",
+            "src": ""
+        },
+        "name": "",
+        "options": [{
+            "option": "Size",
+            "selection": ""
+        }],
+        "quantity": 1,
+        "sku": "",
+        "weight": 1.42,
+        "translatedName": "",
+        "discount": 0,
+        "tax": 5,
+        "priceData": {
+            "price": 5,
+            "taxIncludedInPrice": true
+        }
+    }],
+    "customField": {
+        "title": "",
+        "translatedTitle": "",
+        "value": ""
+    },
+    "discount": {
+        "appliedCoupon": {
+            "code": "",
+            "couponId": "",
+            "name": ""
+        }
+    }
+}
