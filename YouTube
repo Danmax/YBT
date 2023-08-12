@@ -1,0 +1,77 @@
+import { getSecret } from 'wix-secrets-backend';
+import { fetch } from 'wix-fetch';
+
+export async function queryChannel(name) {
+
+    const ytKey = await getSecret('GoogleCredentialDMNet');
+    try {
+
+        const getChannelName = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${name}&type=channel&maxResults=15&key=${ytKey}`)
+        const data = await getChannelName.json()
+        return data.items[0]
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+
+export async function getChannelData(channel) {
+
+    const ytKey = await getSecret('GoogleCredentialDMNet');
+    try {
+
+        const getSubcribers = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channel}&part=snippet&part=contentDetails&key=${ytKey}`)
+        const data = await getSubcribers.json()
+        return data.items[0]
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+export async function getVideoList(listId) {
+
+    const ytKey = await getSecret('GoogleCredentialDMNet');
+    try {
+
+        const getChannelName = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=3&playlistId=${listId}&key=${ytKey}`)
+        const data = await getChannelName.json()
+        return data.items
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+
+export async function getRelatedVideos(listId) {
+
+    const ytKey = await getSecret('GoogleCredentialDMNet');
+    try {
+
+        const getChannelName = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=3&playlistId=${listId}&key=${ytKey}`)
+        const data = await getChannelName.json()
+        return data.items
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+// export async function subscribe(channel) {
+
+//     const ytKey = await getSecret('GoogleCredentialDMNet');
+//     try {
+
+//         const getSubcribers = await fetch(`https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&id=${channel}&key=${ytKey}`)
+//         const data = await getSubcribers.json()
+//         return data
+//     } catch (err) {
+//         console.log(err)
+//         return err
+//     }
+// }
+
+
+
+
+
+
+
