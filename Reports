@@ -1,0 +1,228 @@
+// Velo API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+
+import wixWindowFrontend from 'wix-window-frontend';
+import wixData from 'wix-data';
+
+$w.onReady(function () {
+
+    $w('#btnSave1').onClick((event) => {
+
+        createTemplate()
+        console.log('button pressed save')
+    })
+
+     function createTemplate() {
+        let title = $w('#saveTemplate').value
+        let caseID = $w('#caseID').value
+        let customer = $w('#customer').value
+        let affectedInstance = $w('#affectedInstance').value
+        let header = $w('#subjectLine').value
+        let priority = $w('#priority').value
+        let type = $w('#priority').value
+        let footer = $w('#workDone').value
+        let body = $w('#caseNotes').value
+        let Layout = $w('#selectNextAction').value
+        let category = $w('#category').value
+
+        let object = {
+            caseID,
+            title,
+            customer,
+            affectedInstance,
+            header,
+            priority,
+            type,
+            footer,
+            body,
+            Layout,
+            category
+        }
+        console.log(object)
+        let draftSave = {
+            "title": object.title || undefined,
+            "header": object.header || undefined,
+            "type": object.type || undefined,
+            "footer": object.footer || undefined,
+            "active": true,
+            "body": object.body || undefined,
+            "image": object.image || undefined,
+            "category": object.category || undefined,
+            "Layout": object.Layout || undefined,
+
+        };
+        let options = {
+            "suppressAuth": true,
+            "suppressHooks": true
+        };
+        wixData.insert("Template", draftSave, options)
+
+            // Create Template for Communications to clients and case notes
+
+            .then((results) => {
+
+                console.log(results); //see item below
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
+    $w('#btnUpdate1').onClick((event) => {
+        getDetails()
+        console.log('button pressed update1')
+    })
+
+    function getDetails() {
+        let subjectLine = $w('#subjectLine').value
+        let caseNumber = $w('#caseID').value
+        let affectedInstance = $w('#affectedInstance').value
+        let customer = $w('#customer').value
+        let category = $w('#category').value
+        let issue = $w('#issue').value
+        let priority = $w('#priority').value
+        let stepsToReproduce = $w('#stepsToReproduce').value
+
+        let caseDetails = {
+            subjectLine,
+            caseNumber,
+            affectedInstance,
+            customer,
+            category,
+            issue,
+            stepsToReproduce,
+            priority
+        }
+        console.log(caseDetails)
+        return caseDetails
+    }
+
+    function createCustomer() {
+        let customer = {
+            name: 'Antonio',
+            email: 'ant@gmail.com',
+            phone: '4077317865',
+            company: 'Walmart',
+            timeZone: 'US-East'
+        }
+
+        return customer
+    }
+
+    function createNote(customer, action) {
+
+        let nextSteps = action.next
+        let actionTemplate = action.template
+        let actionPriority = action.priority
+        let actionGroup = action.group
+        let custName = customer.name
+        let custEmail = customer.email
+        let custPhone = customer.phone
+        let custCompany = customer.company
+        let custTimeZone = customer.timeZone
+
+    }
+
+    $w('#selectTemplate').onChange((event) => {
+        console.log(event.target.value)
+
+        switch (event.target.value) {
+        case 'MFR':
+
+            break;
+
+        default:
+            break;
+        }
+    })
+
+    $w('#selectNextAction').onChange((event) => {
+        console.log(event.target.value)
+        switch (event.target.value) {
+        case 'MFR':
+            createMFR()
+            break;
+
+        default:
+            break;
+        }
+    })
+
+    async function createMFR() {
+        let customer = await createCustomer()
+        let caseDetails = await getDetails()
+
+        let signature = `Best regards,
+[code]<b>Daniel Maldonado</b> |  Orlando Office </br><b><span style="color:#545554">Service</span><span style="color:#87EC79">Now</span></b> | The world works with ServiceNow</br>&#9743; +1.407.499.2694</br>[/code]`
+        let intro = `Hello ${customer.name},
+
+My name is Daniel, and I am the support engineer assigned to assist you with your Case. I would like to confirm the following is correct for the issue you are currently facing:
+`
+        let mfr = `${intro}
+[code]<!--MFRIssue--><b>Issue:</b>[/code]
+========
+${caseDetails.issue}
+
+[code]<!--MFRImpact--><b>Business Impact:</b>[/code]
+==========
+Instance :${caseDetails.affectedInstance}
+Priority : ${caseDetails.priority}
+
+[code]<!--MFRSteps--><b>Steps to Reproduce:</b>[/code]
+==================
+${caseDetails.stepsToReproduce}
+
+[code]<!--MFRInvestigation--><b>Investigation Summary:</b>[/code]
+=================
+${$w('#workDone').value}
+
+
+[code]<!--MFRNextSteps--><b>Next Steps:</b>[/code]
+===========
+${$w('#selectNextAction').value}
+
+***
+
+As part of the troubleshooting process, I and other ServiceNow personnel may need to access your instance(s) in order to review the service impact to your instance and determine root cause. It may also be necessary to make some changes on a sub-production instance in order to troubleshoot the issue or to test a probable solution. These changes, if any, will be reverted back to the original state. If any change is not reverted a reason will be provided for the same.
+
+If you need to speak to someone, please use one of the contact numbers from our support contact page:
+[code]<a href='http://www.servicenow.com/support/contact-support.html'>http://www.servicenow.com/support/contact-support.html</a>[/code] You will then be able to enter your Case or Change number over the phone to have your call routed to the engineer that owns that Case or Change.
+
+I am working in the EST time zone. Please note my working hours are (8 AM - 5 PM EST). If you need assistance outside of this, you can call in and another engineer will assist you.
+___________________________________________________
+
+${signature}
+`
+        $w('#caseNotes').value = mfr
+        return "updated Worknote"
+        console.log(intro)
+    }
+
+    function fillFormTest() {
+        $w('#subjectLine').value = 'Subject Line Test'
+        $w('#caseID').value = 'CS000094956'
+        $w('#affectedInstance').value = 'Instance'
+        $w('#customer').value = 'Customer'
+        $w('#category').value = 'Category'
+        $w('#issue').value = 'Issue Line Test'
+        $w('#priority').value = 'P2'
+        $w('#stepsToReproduce').value = "Steps to Reproduce. /n 1. /n 2. /n 3."
+        $w('#workDone').value = "Work Done. /n 1. /n 2. /n 3."
+
+    }
+
+    $w('#btnClipboard1').onClick((event) => {
+        wixWindowFrontend.copyToClipboard($w('#caseNotes').value)
+            .then(() => {
+
+            })
+            .catch((err) => {
+                // handle case where an error occurred
+            });
+
+    })
+
+    $w('#btnTestValues').onClick((event) => {
+        fillFormTest()
+    })
+
+});
