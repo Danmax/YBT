@@ -1,0 +1,14 @@
+import { getSecret } from 'wix-secrets-backend';
+import { fetch } from 'wix-fetch';
+
+export async function searchGiphy(term) {
+    const apiKey = await getSecret('GiphySDK')
+
+    try {
+        const fetchResponse = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${term}&limit=25&offset=0&rating=g&lang=en`)
+        const data = await fetchResponse.json();
+        return data
+    } catch (err) {
+        return err
+    }
+}
