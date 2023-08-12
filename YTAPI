@@ -1,0 +1,63 @@
+import { getSecret } from 'wix-secrets-backend';
+import { fetch } from 'wix-fetch';
+
+export async function postChannel(postObj) {
+    const fieldsObj = postObj
+    console.log(fieldsObj)
+    const settings = {
+        method: 'POST',
+        body: JSON.stringify(fieldsObj),
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic d2l4VmVsb0ludGVncmF0aW9uOkZyb3dlYXIyMDIwJA==`
+        }
+    }
+    try {
+        const table = "x_407566_ytchann_0_channel_id"
+
+        //var requestBody =  
+
+        const fetchResponse = await fetch("https://dev102977.service-now.com/api/now/table/x_407566_ytchann_0_channel_id", settings)
+        const data = await fetchResponse.json();
+
+        console.log(data);
+        return data
+    } catch (err) {
+        return err
+    }
+}
+
+export async function getChannelData(channel) {
+
+    const ytKey = await getSecret('GoogleCredentialDMNet');
+    try {
+        //https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channel}&part=snippet&part=contentDetails&key=${ytKey}
+        const getSubcribers = await fetch(`https://dev102977.service-now.com/api/now/table/x_407566_ytchann_0_channel_id?sysparm_limit=1`)
+        const data = await getSubcribers.json()
+        return data.items[0]
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+
+export async function getIncidents() {
+
+    const settings = {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+            Authorization: 'Basic d2l4VmVsb0ludGVncmF0aW9uOkZyb3dlYXIyMDIwJA=='
+
+        }
+    };
+    try {
+        const fetchResponse = await fetch(`https://dev102977.service-now.com/api/now/table/x_407566_ytchann_0_channel_id?sysparm_limit=10`, settings)
+        const data = await fetchResponse.json();
+
+        return data;
+    } catch (err) {
+        return err
+
+    }
+}
