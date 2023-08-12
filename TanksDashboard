@@ -1,0 +1,111 @@
+// API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+// “Hello, World!” Example: https://learn-code.wix.com/en/article/1-hello-world
+
+$w.onReady(function () {
+
+})
+
+function collapseAllCards() {
+    $w('#boxWaterTest').collapse()
+    $w('#boxWaterTest').hide()
+    $w('#boxAddTank').collapse()
+    $w('#boxServiceAction').collapse()
+    $w('#boxScheduleAction').collapse()
+    $w('#boxAddTank').hide()
+    $w('#boxServiceAction').hide()
+    $w('#boxScheduleAction').hide()
+}
+$w('#btnWaterTest').onClick(() => {
+    collapseAllCards()
+    $w('#boxWaterTest').show()
+    $w('#boxWaterTest').expand()
+})
+
+$w('#btnCloseWaterTest').onClick(() => {
+    $w('#boxWaterTest').hide()
+    $w('#boxWaterTest').collapse()
+})
+
+$w('#btnServiceAction').onClick(() => {
+    collapseAllCards()
+    $w('#boxServiceAction').show()
+    $w('#boxServiceAction').expand()
+})
+
+$w('#btnCloseServiceAction').onClick(() => {
+    $w('#boxServiceAction').hide()
+    $w('#boxServiceAction').collapse()
+})
+$w('#btnScheduleAction').onClick(() => {
+    collapseAllCards()
+    $w('#boxScheduleAction').show()
+    $w('#boxScheduleAction').expand()
+})
+
+$w('#btnCloseScheduleAction').onClick(() => {
+    $w('#boxScheduleAction').hide()
+    $w('#boxScheduleAction').collapse()
+})
+
+$w('#btnAddTank').onClick(() => {
+    collapseAllCards()
+    $w('#boxAddTank').show()
+    $w('#boxAddTank').expand()
+})
+
+$w('#btnCloseAddTank').onClick(() => {
+    $w('#boxAddTank').hide()
+    $w('#boxAddTank').collapse()
+})
+
+$w('#iptNickname').onChange(() => {
+    createTankTitle()
+})
+$w('#iptWaterType').onChange(() => {
+    createTankTitle()
+})
+$w('#iptLocation').onChange(() => {
+    createTankTitle()
+})
+$w('#iptVolume').onChange(() => {
+    createTankTitle()
+})
+
+$w('#iptMyTank').onChange(() => {
+    createWaterTestTitle()
+})
+
+$w('#iptWaterTypeTest').onChange(() => {
+    createWaterTestTitle()
+})
+$w('#iptSampleDate').onChange(() => {
+    createWaterTestTitle()
+})
+
+$w('#iptSelectTank').onChange(() => {
+    loadTank()
+})
+
+function loadTank(){
+    
+}
+
+function createTankTitle() {
+    //Type of Tank + Nickname + Location + Size
+    let type = $w('#iptWaterType').value
+    let nickname = $w('#iptNickname').value
+    let location = $w('#iptLocation').value
+    let size = $w('#iptVolume').value
+    let newTitle = `${type} ${nickname} ${location} ${size}`
+    $w('#txtTitleSubject').text = newTitle
+}
+
+function createWaterTestTitle() {
+    //Tank Name + Water Type + Test + Date
+    let tankName = $w('#iptMyTank').value
+    let waterType = $w('#iptWaterType').value
+    let testType = 'Water Test'
+    let sampleDate = $w('#iptSampleDate').value
+    let newTitle = `${tankName} ${waterType} ${testType} ${sampleDate}`
+    $w('#iptWaterTestTitle').value = newTitle
+}
