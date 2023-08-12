@@ -1,0 +1,48 @@
+import { getSecret } from 'wix-secrets-backend';
+import {fetch} from 'wix-fetch';
+
+
+export async function getLocations() {
+    const settings = {
+        method : 'GET',
+        headers: {
+            Accept: 'application/json',
+            Authorization: `Basic `
+        }
+    };
+    try {
+        const fetchResponse = await fetch(`https://dev74553.service-now.com/api/now/table/x_407566_volunte_0_location?sysparm_fields=name%2Cstreet_address%2Ccity%2Cstate%2Czip_code%2Clocation%2Csys_id&sysparm_limit=10`, settings)
+        const data = await fetchResponse.json();
+
+        return data;    
+    }
+    catch(err) {
+        return err
+
+    }
+}
+//name, address, city, state, zip_code, location
+export async function postLocation(fieldObj) {
+    //{"name":name, "street_address": address , "city": city, "state":state, "zip_code": zip_code, "location":location}
+    console.log(fieldObj)
+    const settings = {
+        method : 'POST',
+        body: JSON.stringify(fieldObj),
+        headers: {
+            Accept : 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Basic `
+        }
+    };
+    try{
+        const fetchResponse = await fetch("https://dev74553.service-now.com/api/now/table/x_407566_volunte_0_location?sysparm_fields=name%2Cstreet_address%2Ccity%2Cstate%2Czip_code%2Clocation",settings)
+        const data = await fetchResponse.json();
+
+        console.log(data);
+        return data
+    }
+    catch(err) {
+        return err
+    }
+}
+
