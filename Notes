@@ -1,0 +1,263 @@
+mport wixWindow from 'wix-window';
+import { session } from 'wix-storage';
+import {  postMachinery  } from 'backend/snAPI.jsw';
+
+$w.onReady(function () {
+
+    // Defined Global Page 
+    let txtTitle = $w('#txtSPTitle')
+    let txtWorkNotes = $w('#txtSDWorkNotes')
+    let spActionDrop = $w('#fdSPActionDrop')
+    let spIssue = $w('#fdSPIssue')
+    let spSTR = $w('#fdSPSTR')
+    let spKB = $w('#fdSPKB')
+    let spMostProb = $w('#fdSPMostProb')
+    let spSolutionPropose = $w('#fdSPSolutionPropose')
+    let spNextSteps = $w('#fdSPNextSteps')
+    let spTemplate = $w('#fdSPTemplate')
+    let btnSPLoadTest = $w('#btnSPLoadTest')
+    let btnSPClear = $w('#btnSPClear')
+    let btnSPPreview = $w('#btnSPPreview')
+    let btnSPClipboard = $w('#btnSPClipboard')
+    let btnSPSave = $w('#btnSPSave')
+    let boxSPExp = $w('#boxSP')
+    let btnAgent = $w('#btnAgent')
+    let boxAgentCard = $w('#boxAgentCard')
+    let agentName = $w('#fieldAgentName')
+    let agentUsername = $w('#fieldAgentUsername')
+    let agentSignature = $w('#fieldAgentSignature')
+    let btnAgentBoxSave = $w('#btnAgentBoxSave')
+    let btnAgentBoxClose = $w('#btnAgentBoxClose')
+    let fdTemplateType = $w('#fdTemplateType')
+    let boxNotepadCard = $w('#boxNotepadCard')
+    let boxAgent = $w('#boxAgent')
+    let btnNextCaseNotes = $w('#btnNextCaseNotes')
+
+
+btnNextCaseNotes.onClick((event) => {
+ MoveToWIP()
+})
+function MoveToWIP(){
+    
+    collapseAllBoxes()
+    $w('#boxAgent').expand()
+}
+
+
+    btnAgent.onClick((event) => {
+        agentProfile()
+        loadAgentSession()
+    })
+
+    function agentProfile() {
+        boxAgentCard.collapsed ? (boxAgentCard.expand(), console.log('expand')) : (boxAgentCard.collapse(), console.log('collapse'))
+    }
+
+    btnAgentBoxClose.onClick((event)=> {
+        boxAgentCard.collapse()
+    })
+
+    btnAgentBoxSave.onClick((event) => {
+
+        session.setItem("agentName", agentName.value);
+        session.setItem("agentUsername", agentUsername.value);
+        session.setItem("agentSignature", agentSignature.value);
+        $w('#boxAgentCard').collapse()
+    })
+
+    btnSPLoadTest.onClick((event) => {
+        // Function to take SP Template include a Greeting message 
+        postMachinery("danmax", "movies", "www.FWP.com")
+
+        txtTitle.text = "Solution Propose Title"
+        txtWorkNotes.text = 'Work Note Test'
+
+        spIssue.value = "Issue for the Solution Propose " + txtTitle.text
+        spSTR.value = "Steps to Reproduce" + " Solution Propose Case"
+        spKB.value = "Knowledgebase for the Solution Propose Title"
+        spMostProb.value = "Most probable cause for the Solution Propose Title"
+        spSolutionPropose.value = "Solution Propose for the Title"
+        spNextSteps.value = "Next Steps Solution Propose Title"
+        spTemplate.value = (
+            ` Greetings, \n
+				\n
+				Issue: 	\n
+                ====================\n
+				${spIssue.value}\n\n
+				Steps to Reproduce: \n
+                ====================\n
+				${spSTR.value} \n\n
+				Most Probable Cause: \n
+                ====================\n
+				${spMostProb.value} \n\n
+				Solution Propose: \n
+                ====================\n
+				${spSolutionPropose.value} \n\n
+				Next Steps: \n
+                ====================\n
+				${spNextSteps.value} \n\n
+				Knowledgebase: \n
+                ====================\n
+				${spKB.value} \n
+				
+				`)
+
+    })
+
+    btnSPPreview.onClick((event) => {
+
+        txtTitle.text = `${spIssue.value.slice(0,24)}`
+        txtWorkNotes.text = `${spIssue.value.slice(0,42)}`
+
+        spTemplate.value = (
+            ` Greetings, \n\n
+				Issue: \n
+                ====================\n
+				${ spIssue.value }\n\n
+				Steps to Reproduce:\n
+                ====================\n
+				${ spSTR.value }\n\n
+				Most Probable Cause: \n
+                ====================\n
+				${ spMostProb.value }\n\n
+				Solution Propose:\n
+                ====================\n
+				${ spSolutionPropose.value }\n\n
+				Next Steps: \n
+                ====================\n
+				${ spNextSteps.value }\n\n
+				KB: \n
+                ====================\n
+				${ spKB.value }\n
+
+				    `)
+
+    })
+
+    btnSPClear.onClick((event) => {
+
+        txtTitle.text = "Title"
+        txtWorkNotes.text = 'Work Note Test'
+
+        spIssue.value = ""
+        spSTR.value = ""
+        spKB.value = ""
+        spMostProb.value = ""
+        spSolutionPropose.value = ""
+        spNextSteps.value = ""
+        spTemplate.value = ``
+    })
+
+    btnSPClipboard.onClick((event) => {
+
+        copyClipboard()
+
+    })
+
+    function loadAgentSession() {
+        if (agentName.value == '') {
+            agentName.value = session.getItem("agentName");
+            agentUsername.value = session.getItem("agentUsername");
+            agentSignature.value = session.getItem("agentSignature");
+
+        }
+    }
+    
+    function copyClipboard() {
+        wixWindow.copyToClipboard($w('#fdSPTemplate').value)
+            .then(() => {
+                console.log('worknotes copied')
+            })
+            .catch((err) => {
+                // handle case where an error occurred
+            });
+    }
+
+function collapseAllBoxes(){
+    boxAgent.collapse()
+    boxNotepadCard.collapse()
+    boxSPExp.collapse()
+}
+
+fdTemplateType.onChange((Event) =>{
+
+switch (fdTemplateType.value) {
+        case "MFR":
+            console.log('MFR Template')
+            collapseAllBoxes()
+            boxNotepadCard.expand()
+            break;
+
+            case "Meeting":
+            console.log('Meeting Template')
+            collapseAllBoxes()
+            boxAgent.expand()
+            break;
+
+            case "Solution Propose":
+            console.log('Solution Propose Template')
+            collapseAllBoxes()
+            boxSPExp.expand()
+            break;
+
+            default:
+            collapseAllBoxes()
+            console.log("no matching Template Available")
+            $w('#txtAppTitle').text = "no matching Template Available"
+             break ;
+}
+})
+
+});
+
+
+
+// Functions: load template type
+// Velo API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+//3 Stages
+//Note View
+//Create Note
+//Update Note
+// Journal
+// Templates
+// Preview
+// Save
+// Insert
+// Before
+// After
+// Business Ruless
+// Script Includes
+// Functions
+// Buttons 
+// On Click
+// On Change
+// On Revert
+// On Save
+// Refresh
+// Query
+// Get
+// Filter
+// Save
+// REST
+// Flow
+// Integration
+// API
+// Secrets
+// Users
+// Collections
+// Items
+// Store
+// Subscriptions
+// VIP
+// Support
+// Tech
+// Admin
+// STR
+// SP
+// Investigation
+// Reports
+// Dashboards
+// Pages
+// Forms
+// Assessments
+// Qualifications
