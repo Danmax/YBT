@@ -1,1 +1,52 @@
 
+//CI = P*(1 + R/n) (nt) – P
+export function compundInterest (principal, rate, time, ncomp) {
+let p =  principal //= 2000;
+let t = time //= 5;
+let r = rate //= .08;
+let n = ncomp // = 12;
+const compoundInterest = (p, t, r, n) => {
+   const amount = p * (Math.pow((1 + (r / n)), (n * t)));
+   const interest = amount - p;
+   return interest;
+};
+console.log(compoundInterest(principal, time, rate, n));
+return(compoundInterest(principal, time, rate, n));
+}
+
+
+
+
+// Instagram API
+
+import { fetch } from 'wix-fetch';
+import { getSecret } from 'wix-secrets-backend';
+
+export async function getInstaPost(userId) {
+
+    const instaKey = await getSecret('DMInstagram');
+    try {
+
+        const getPosts = await fetch(`https://graph.instagram.com/${userId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&access_token=${instaKey}`)
+  
+        const data = await getPosts.json()
+        return data
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
+
+export function getInstagramPosts(username) {
+    const apiKey = 'f2a1702e767d44a0c473be34275f3b7d';
+    const url = `https://graph.instagram.com/${username}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,thumbnail_resource&access_token=${apiKey}`;
+
+    return fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch(error => {
+            return error;
+        });
+}
