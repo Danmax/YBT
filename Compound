@@ -1,0 +1,67 @@
+import {created, serverError, ok } from 'wix-http-functions'
+import { getAuth } from '@velo/google-sso-integration-backend';
+
+import wixData from 'wix-data';
+
+export function post_mySubmission(request) {
+    let options = {
+        'headers' : {
+            'Content-Type' : 'application/json'
+        }
+        
+    }
+    return request.body.text()
+    .then((body) => {
+        return wixData.insert("Machinery", JSON.parse(body))
+    })
+    .then((results) => {
+        options.body = {
+            "Machinery has been submitted " : results
+        }
+        return created(options)
+    })
+    .catch((error) => {
+        options.body = {
+            "error": error
+        }
+        return serverError(options)
+    })
+}
+
+const getResponse = (body) => {
+    return {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body
+    }
+}
+export async function get_listAllModels(request) {
+    const {items: machines } = await wixData.query('Machinery').include('type').find()
+    const response = getResponse([machines])
+    return ok(response)
+}
+
+
+export function get_getAuth(request) {
+    return getAuth(request)
+      .catch((error) => {
+          console.log(error);
+      });
+}
+
+
+//CI = P*(1 + R/n) (nt) – P
+export function compundInterest (principal, rate, time, ncomp) {
+let p =  principal //= 2000;
+let t = time //= 5;
+let r = rate //= .08;
+let n = ncomp // = 12;
+const compoundInterest = (p, t, r, n) => {
+   const amount = p * (Math.pow((1 + (r / n)), (n * t)));
+   const interest = amount - p;
+   return interest;
+};
+console.log(compoundInterest(principal, time, rate, n));
+return(compoundInterest(principal, time, rate, n));
+}
