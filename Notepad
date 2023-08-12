@@ -1,0 +1,426 @@
+import wixData from 'wix-data';
+import wixWindow from 'wix-window';
+import { session } from 'wix-storage';
+import { applyTemplate } from 'backend/template';
+
+$w.onReady(function () {
+    loadOptions()
+
+    let templateType = $w('#fieldTemplateType').label
+    let when = $w('#fieldWhen').value
+    let results = $w('#fieldResults').value
+    let subject = $w('#fieldSubject').value
+    let issue = $w('#fieldIssue').value
+    let instance = $w('#fieldMainInstance').value
+    let workDone = $w('#fieldWorkDone').value
+    let sp = $w('#fieldSolutionPropose').value
+    let action = $w('#fieldActions').value
+    let kb = $w('#fieldKb').value
+    let caseId = $w('#fieldCaseId').value
+    let nextSteps = $w('#fieldNextSteps').value
+    let str = $w('#fieldSTR').value
+    let contactName = $w('#fieldContactName').value
+    let username = ($w('#fieldAgentUsername').value || "daniel.maldonado")
+    let name = ($w('#fieldAgentName').value || "Daniel")
+
+    // Message Sections
+    let type = `====${templateType}==== \n`
+    let greeting = `Hi ${contactName}, \n `
+    let header
+
+    let message
+    let businessImpact = $w('#fieldImpact').value
+    let next
+    let footer = `As part of the troubleshooting process, I and other ServiceNow personnel may need to access your instance(s) in order to review the service impact to your instance and determine root cause. It may also be necessary to make some changes on a sub-production instance in order to troubleshoot the issue or to test a probable solution. These changes, if any, will be reverted back to the original state. If any change is not reverted a reason will be provided for the same.\n\n
+            If you need to speak to someone, please use one of the contact numbers from our support contact page:\n
+            [code]<a href='http://www.servicenow.com/support/contact-support.html'>http://www.servicenow.com/support/contact-support.html</a>[/code] You will then be able to enter your Case or Change number over the phone to have your call routed to the engineer that owns that Case or Change.\n\n
+            I am working in the EST time zone. Please note my working hours are (8 AM - 5 PM EST). If you need assistance outside of this, you can call in and another engineer will assist you.`
+    let signature = "\n Best regards \n Daniel Maldonado | Orlando Office \n"
+
+    let template
+    let devTaskTemplate
+
+    // Templates
+
+    function loadOptions() {
+        wixData.query("Template")
+            .ascending("title")
+            .find()
+            .then((r) => {
+                if (r.items.length > 0) {
+                    appendOptions(r)
+                } else {
+                    console.log("else") // handle case where no matching items found
+                }
+            })
+    }
+
+    function appendOptions(r) {
+        for (let i = 0; i < r.items.length; i++) {
+            let dOptions = $w('#fieldTemplateType').options
+            dOptions.push({ "label": r.items[i].title, "value": r.items[i]._id })
+            $w('#fieldTemplateType').options = dOptions
+        }
+    }
+
+    $w('#btnAgent').onClick((event) => {
+        $w('#boxAgentCard').show()
+        $w('#boxAgentCard').expand()
+    })
+    if ($w('#fieldAgentName').value == '') {
+        let agentName = session.getItem("agentName");
+        let agentUsername = session.getItem("agentUsername");
+        let agentSignature = session.getItem("agentSignature");
+        $w('#fieldAgentName').value = agentName
+        $w('#fieldAgentUsername').value = agentUsername
+        $w('#fieldAgentSignature').value = agentSignature
+        $w('#txtAgentName').text = `Welcome Agent ${agentName}`
+    }
+
+    $w('#btnAgentBoxSave').onClick((event) => {
+        let agentName = $w('#fieldAgentName').value
+        let agentUsername = $w('#fieldAgentUsername').value
+        let agentSignature = $w('#fieldAgentSignature').value
+        session.setItem("agentName", agentName);
+        session.setItem("agentUsername", agentUsername);
+        session.setItem("agentSignature", agentSignature);
+        $w('#boxAgentCard').hide()
+        $w('#boxAgentCard').collapse()
+    })
+
+    $w('#btnSave').onClick((event) => {
+        let caseId = $w('#fieldCaseId').value
+        let subject = $w('#fieldSubject').value
+        let workDone = $w('#fieldWorkDone').value
+        let instance = $w('#fieldMainInstance').value
+        let workNotes = $w('#fieldCustomerFacingMsg').value
+
+        session.setItem("caseId", caseId);
+        session.setItem("subject", subject);
+        session.setItem("workDone", workDone);
+        session.setItem("instance", instance);
+        session.setItem("workNotes", workNotes);
+    })
+
+    $w('#btnAgentBoxClose').onClick((event) => {
+        $w('#boxAgentCard').hide()
+        $w('#boxAgentCard').collapse()
+    })
+
+    $w('#btnLoadTestValues').onClick((event) => {
+        loadTestValues()
+    })
+
+    function copyClipboard() {
+        wixWindow.copyToClipboard($w('#fieldCustomerFacingMsg').value)
+            .then(() => {
+                console.log('worknotes copied')
+            })
+            .catch((err) => {
+                // handle case where an error occurred
+            });
+    }
+
+    $w('#btnClipboard').onClick((event) => {
+        copyClipboard()
+    })
+
+    $w('#fieldTemplateType').onChange((event) => {
+        let newValue = event.target;
+        let templateID = $w('#fieldTemplateType').value
+
+        console.log('template label: ' + newValue)
+
+        wixData.get("Template", templateID)
+            .then((item) => {
+                console.log(item); //see item below
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+        // switch (templateID) {
+        // case "MFR":
+        //     collapseAll()
+        //     mfr()
+        //     console.log('MFR Template')
+        //     break;
+
+        // case "WRAP UP":
+        //     collapseAll()
+        //     wrapup()
+        //     console.log('Wrapup')
+        //     break;
+
+        // case "Schedule Meeting":
+        //     collapseAll()
+        //     zoomMeeting()
+        //     break;
+
+        // case "Customer Follow Up":
+        //     collapseAll()
+        //     followUp()
+        //     break;
+        // case "Dev Task":
+        //     collapseAll()
+        //     devTask()
+        //     break;
+
+        // case "SNC Access":
+        //     collapseAll()
+        //     followUp()
+        //     break;
+        // case "Solution Propose":
+        //     collapseAll()
+        //     solutionPropose()
+        //     break;
+        // default:
+        //     collapseAll()
+        //     break;
+        // }
+    })
+
+    $w('#btnClear').onClick((event) => {
+        $w('#fieldSubject').value = ''
+        $w('#fieldMainInstance').value = ''
+        $w('#fieldIssue').value = ''
+        $w('#fieldWorkDone').value = ''
+        $w('#fieldCaseId').value = ''
+        $w('#fieldNextSteps').value = ''
+        $w('#fieldSTR').value = ''
+        $w('#fieldImpact').value = ''
+        $w('#fieldActions').value = ''
+        $w('#fieldZoomLink').value = ''
+        $w('#fieldResults').value = ''
+        $w('#fieldKb').value = ''
+        $w('#fieldSolutionPropose').value = ''
+        $w('#fieldCustomerFacingMsg').value = ''
+        $w('#fieldContactName').value = ''
+    })
+
+    function loadTestValues() {
+        $w('#fieldSubject').value = "Test Subject"
+        $w('#fieldMainInstance').value = "Test Instance"
+        $w('#fieldIssue').value = "Test Issue"
+        $w('#fieldWorkDone').value = "Test Work Down"
+        $w('#fieldCaseId').value = "CS320394985"
+        $w('#fieldNextSteps').value = "Next Steps"
+        $w('#fieldResults').value = "Results Value"
+        $w('#fieldContactName').value = "Jim Seller"
+    }
+
+    function getValues() {
+        let value = {
+            "sunbject": $w('#fieldSubject').value,
+            "mainInstance": $w('#fieldMainInstance').value,
+            "issue": $w('#fieldIssue').value,
+            "workDone": $w('#fieldWorkDone').value,
+            "caseId": $w('#fieldCaseId').value,
+            "nextSteps": $w('#fieldNextSteps').value,
+            "str": $w('#fieldSTR').value,
+            "impact": $w('#fieldImpact').value,
+            "actions": $w('#fieldActions').value,
+            "zoomLink": $w('#fieldZoomLink').value,
+            "results": $w('#fieldResults').value,
+            "kb": $w('#fieldKb').value,
+            "solutionsPropose": $w('#fieldSolutionPropose').value,
+            "customerFacing": $w('#fieldCustomerFacingMsg').value,
+            "contactName": $w('#fieldContactName').value
+        }
+        return value
+    }
+
+    function collapseAll() {
+        $w('#fieldSubject').collapse()
+        $w('#fieldMainInstance').collapse()
+        $w('#fieldIssue').collapse()
+        $w('#fieldWorkDone').collapse()
+        $w('#fieldCaseId').collapse()
+        $w('#fieldNextSteps').collapse()
+        $w('#fieldSTR').collapse()
+        $w('#fieldImpact').collapse()
+        $w('#fieldActions').collapse()
+        $w('#fieldZoomLink').collapse()
+        $w('#fieldKb').collapse()
+        $w('#fieldContactName').collapse()
+        $w('#fieldResults').collapse()
+        $w('#fieldSolutionPropose').collapse()
+        $w('#fieldWhen').collapse()
+        $w('#fieldCustomerFacingMsg').collapse()
+    }
+
+    function mfr() {
+        $w('#fieldSubject').expand()
+        $w('#fieldMainInstance').expand()
+        $w('#fieldIssue').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldCaseId').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldSTR').expand()
+        $w('#fieldImpact').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldContactName').expand()
+        $w('#fieldKb').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    function zoomMeeting() {
+        $w('#fieldSubject').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldZoomLink').expand()
+        $w('#fieldContactName').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    function wrapup() {
+        $w('#fieldIssue').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldResults').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    function devTask() {
+        $w('#fieldSubject').expand()
+        $w('#fieldMainInstance').expand()
+        $w('#fieldIssue').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldCaseId').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldSTR').expand()
+        $w('#fieldImpact').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldResults').expand()
+        $w('#fieldKb').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    function solutionPropose() {
+        $w('#fieldSubject').expand()
+        $w('#fieldMainInstance').expand()
+        $w('#fieldIssue').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldSTR').expand()
+        $w('#fieldImpact').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldContactName').expand()
+        $w('#fieldResults').expand()
+        $w('#fieldKb').expand()
+        $w('#fieldSolutionPropose').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    function followUp() {
+        $w('#fieldMainInstance').expand()
+        $w('#fieldIssue').expand()
+        $w('#fieldWorkDone').expand()
+        $w('#fieldNextSteps').expand()
+        $w('#fieldActions').expand()
+        $w('#fieldContactName').expand()
+        $w('#fieldCustomerFacingMsg').expand()
+    }
+
+    $w('#btnPreview').onClick((event) => {
+
+        let templateType = $w('#fieldTemplateType').label
+        console.log(templateType)
+        // ****
+        switch (templateType) {
+        case "MFR":
+
+            header = `\nMy name is ${name}, and I am the support engineer assigned to assist you with your Case. I would like to confirm the following is correct for the issue you are currently facing:\n`
+            template = `${greeting} ${header}\n\n [code]<!--MFRIssue--><b>Issue:</b>[/code]\n
+            ${issue} \n\n[code]<!--MFRImpact--><b>Business Impact:</b>[/code]\n
+            ${businessImpact}\n
+            \n[code]<!--MFRSteps--><b>Steps to Reproduce:</b>[/code]\n
+            ${str}\n
+            \n[code]<!--MFRInvestigation--><b>Investigation Summary:</b>[/code]\n
+            ${workDone}\n
+            [code]<!--MFRNextSteps--><b>Next Steps:</b>[/code]\n
+            ${nextSteps}\n ${action} \n
+            \n${footer} \n\n${signature}`
+
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+
+        case "WRAP UP":
+            template = `${type} \n <b>Issue : </b>${issue} 
+                \n\n<b>Wordk done : </b>${workDone} 
+                \n\n<b>Results : </b>${results}
+                \n\n<b>Next : </b>${nextSteps} ${action}
+                \n\n<b>When : </b>${when}`
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+
+        case "Schedule Meeting":
+
+            message = `\nThank you for your patience on this case, my name is ${name} and I would be assisting you on this case. \n
+                I would like to schedule a Zoom meeting to discuss details about the case. \n
+                We can join a Zoom meeting Anytime This week between hours of 11am - 4pm EST \n\n
+                Please confirm your availability to Schedule Zoom Meeting Appointment for this week. \n`
+            template = `${greeting} ${message} ${signature}`
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+
+        case "Customer Follow Up":
+
+            message = `\n We are still working on this. We have inspected Business Rules and script includes and the flow context to determine if this may be where the cause of the issue is. Further testing is still underway. We will update you as soon as possible
+                \n`
+            template = `${greeting} ${message} ${signature}`
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+        case "Dev Task":
+            devTaskTemplate = `------------------------------------​\n
+                Please conduct testing on  ${instance} instance only.​\n
+                The customer has NOT authorized access/changes to other instance(s.)​\n
+                SNC Access Control? Yes/No​\n
+                ------------------------------------​\n
+                \n<b>Assistance Requested: </b>
+                \n<b>Affected instance(s):</b>${instance} 
+                \n<b>Affected version(s):</b>
+                \n<b>Issue Definition:</b> ${issue}  
+                \n\n<b>Ask:</b> ${nextSteps}
+                \n\n<b>Steps to Reproduce: </b>${str}
+                \n\n<b>Investigation Summary:</b>${workDone}
+                \n\n<b>Knowledge Articles Researched:​</b> ${kb}`
+            template = `${type} ${header}  ${devTaskTemplate}`
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+        case "Solution Propose":
+            header = `I hope you are keeping safe and well.\n\n
+                We are moving your case to Solution Proposed as we believe the information provided below will resolve your issue. If we have addressed your concerns, you may accept the solution to close this case or reject the solution if it does not answer the original question raised with this ticket. At any time in the Solution Proposed state, you may add additional questions or updates.\n`
+            sp = `\n<b>Reason:</b>
+                \n\n<b>Issue:</b>${issue}
+                \n\n<b>Most Probable Cause: </b>
+                \n\n<b>Solution Proposed:</b>${solutionPropose}
+                \n\n<b>Next Steps: </b>${nextSteps}
+                \n\nI believe the above information answers your question.
+                If you feel we addressed your questions properly and provided relevant information, please accept the solution and close this case.
+                \n\n***\n\n
+                If you need immediate assistance, please use one of the contact numbers from our support contact page:
+                http://www.servicenow.com/support/contact-support.html
+                \n\nYou will then be able to enter your Case or Change number over the phone to have your call routed to the Support Team.
+                Please test and let me know if the issue is not occurring anymore`
+            template = `${greeting} ${header} ${sp} ${signature}`
+            $w('#fieldCustomerFacingMsg').value = (template)
+            break;
+
+        case "SNC Access":
+
+            message = ` \n The affected instance: ${instance} has the "SNC Access Control" plugin enabled. Please add username ${username} to the instance. \n Instructions found in this doc page: [code]<a href="https://docs.servicenow.com/bundle/rome-platform-administration/page/administer/security/task/t_ConfigureAccessControl.html" target="newWindow"><span style="color:#00F">Configure ServiceNow access control</span></a>[/code]
+		        \n Please update this case when I have access to the instance! \n `
+
+            $w('#fieldCustomerFacingMsg').value = (greeting + message + signature)
+
+            break;
+        default:
+            $w('#fieldCustomerFacingMsg').value = "Nothing to Display"
+            break;
+        }
+
+    })
+})
