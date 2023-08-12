@@ -50,3 +50,23 @@ export function getInstagramPosts(username) {
             return error;
         });
 }
+
+
+
+export function multiply(factor1, factor2) {
+   return factor1 * factor2;
+}
+
+
+export function tempToC(temp) {
+    //Fahrenheit to Celsius
+//Format Accuracy 107.6°F= 42.00°
+let cels = (temp - 32) * 5 / 9 + " °C";
+
+	return cels;
+}
+
+export function tempToF(Celsius) {
+let Fahrenheit  = (1.8 * Celsius) +32
+	return Math.floor(Fahrenheit)
+}
