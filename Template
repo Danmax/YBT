@@ -1,0 +1,58 @@
+/*********
+ .jsw file
+ *********
+
+ Backend .jsw files contain functions that run on the server side but can be called from page code and frontend files.
+ Use backend functions to keep code private and hidden from a user's browser. More info:
+
+ https://support.wix.com/en/article/velo-web-modules-calling-backend-code-from-the-frontend
+
+**********/
+
+/*** Call the sample multiply function below by copying the following into your page code:
+
+ import { multiply } from 'backend/multiplication';
+
+ $w.onReady(function () {
+     multiply(4, 5).then(product => {
+         console.log(product);
+     })
+     .catch(error => {
+         console.log(error);
+     });
+ });
+
+***/
+
+// Sample backend code in a multiplication.jsw file:
+
+
+
+export function applyTemplate(type, values) {
+    let template, header, greeting, name, issue, businessImpact, str, workDone, nextSteps, action, footer, signature
+   
+switch (type) {
+    case "MFR":
+        console.log ("mfr")
+
+        header = `\nMy name is ${name}, and I am the support engineer assigned to assist you with your Case. I would like to confirm the following is correct for the issue you are currently facing:\n`
+        template = `${greeting} ${header}\n\n [code]<!--MFRIssue--><b>Issue:</b>[/code]\n
+            ${issue} \n\n[code]<!--MFRImpact--><b>Business Impact:</b>[/code]\n
+            ${businessImpact}\n
+            \n[code]<!--MFRSteps--><b>Steps to Reproduce:</b>[/code]\n
+            ${str}\n
+            \n[code]<!--MFRInvestigation--><b>Investigation Summary:</b>[/code]\n
+            ${workDone}\n
+            [code]<!--MFRNextSteps--><b>Next Steps:</b>[/code]\n
+            ${nextSteps}\n ${action} \n
+            \n${footer} \n\n${signature}`
+        //template = "MFR template"
+   return template
+        break;
+
+    default:
+    return "Nothing Selected"
+        break;
+}
+   
+}
