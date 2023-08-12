@@ -1,0 +1,19 @@
+    // Velo API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+import {getLocations , postLocation} from 'backend/VolunteerAPI'
+
+$w.onReady(function () {
+
+	
+	
+$w('#btnSubmit').onClick((event)=> {
+	let name = $w('#fieldName').value
+	let address = $w('#fieldAddress').value
+	let city = $w('#fieldCity').value
+	let state = $w('#fieldState').value
+	let zipCode = $w('#fieldZipCode').value
+	let location = $w('#fieldLocation').value
+ const postObj = {"name":name,"street_address":address,"city":city,"state":state,"zip_code":zipCode}
+ postLocation(postObj)
+})
+
+});
